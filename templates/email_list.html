@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Список сообщений</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        #progress-bar {
+            width: 100%;
+            background-color: #f3f3f3;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            position: relative;
+        }
+        #progress {
+            width: 0;
+            height: 20px;
+            background-color: #4caf50;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="progress-bar">
+        <div id="progress-status">Чтение сообщений</div>
+        <div id="progress"></div>
+    </div>
+    <table id="messages-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Тема</th>
+                <th>Дата отправки</th>
+                <th>Дата получения</th>
+                <th>Описание</th>
+                <th>Прикреплённые файлы</th>
+            </tr>
+        </thead>
+        <tbody>
+        
+        </tbody>
+    </table>
+<script>
+    $(document).ready(function() {
+        let socket = new WebSocket('ws://localhost:8000/ws/email/');
+
+        socket.onmessage = function(event) {
+            let data = JSON.parse(event.data);
+            console.log("Message received: ", data);  // Debugging line
+            $('#progress-status').text(data.status);
+            // Update progress bar
+            if (data.status.startsWith('Progress:')) {
+                let progress = parseInt(data.status.split(': ')[1]);
+                $('#progress').css('width', progress + '%').text(progress + '%');
+            }
+            // Update email list
+            if (data.email) {
+                let email = data.email;
+                let row = `<tr>
+                    <td>${email.id}</td>
+                    <td>${email.subject}</td>
+                    <td>${email.sent_date}</td>
+                    <td>${email.received_date}</td>
+                    <td>${email.description.length > 30 ? email.description.slice(0, 30) + '...' : email.description}</td>
+                    <td>${email.attachments}</td>
+                </tr>`;
+                $('#messages-table tbody').append(row);
+            }
+        };
+
+        socket.onopen = function(event) {
+            console.log("WebSocket is open now.");  // Debugging line
+        };
+
+        socket.onclose = function(event) {
+            console.log("WebSocket is closed now.");  // Debugging line
+        };
+
+        socket.onerror = function(error) {
+            console.log("WebSocket error: " + error);  // Debugging line
+        };
+    });
+</script>
+
+</body>
+</html>

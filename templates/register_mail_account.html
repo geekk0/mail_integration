@@ -1,0 +1,15 @@
+<!-- mail/templates/register_mail_account.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register Email Account</title>
+</head>
+<body>
+    <h1>Register Email Account</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Register</button>
+    </form>
+</body>
+</html>
