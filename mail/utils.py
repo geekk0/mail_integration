@@ -55,16 +55,16 @@ def get_text_from_email(msg):
 
 def get_attachments_from_email(msg):
     attachments = []
-    if msg.is_multipart():
-        for part in msg.walk():
-            content_disposition = str(part.get("Content-Disposition"))
-            content_type = part.get_content_type()
-            if "attachment" in content_disposition and not content_type.startswith("text/"):
-                filename = part.get_filename()
-                if filename and not filename.startswith("=?"):
-                    attachments.append(filename)
+    for part in msg.walk():
+        if part.get_content_maintype() == 'multipart':
+            continue
+        if part.get('Content-Disposition') is None:
+            continue
+        filename = part.get_filename()
+        if bool(filename):
+            file_data = part.get_payload(decode=True)
+            attachments.append((filename, file_data))
     return attachments
-
 
 
 

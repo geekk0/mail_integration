@@ -5,11 +5,13 @@
     <title>Register Email Account</title>
 </head>
 <body>
-    <h1>Register Email Account</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Register</button>
-    </form>
+    <div style="width: 70%; margin: auto; text-align: center; margin-top: 5%">
+        <h1>Register Email Account</h1>
+        <form method="post" style="text-align: center; width: 60%; margin: auto">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Register</button>
+        </form>
+    </div>
 </body>
 </html>

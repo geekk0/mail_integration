@@ -16,3 +16,10 @@ class EmailMessage(models.Model):
     description = models.TextField()
     attachments = models.JSONField(null=True, blank=True)  # Список прикреплённых файлов
     email_account = models.ForeignKey(EmailAccount, on_delete=models.CASCADE)
+
+
+class Attachment(models.Model):
+    file = models.FileField(upload_to='attachments/')
+    email_message = models.ForeignKey(EmailMessage, related_name='attachment_files', on_delete=models.CASCADE)
+
+

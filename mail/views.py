@@ -29,14 +29,25 @@ def register_mail_account(request):
         form = EmailAccountForm(request.POST)
         if form.is_valid():
             email_account = form.save()
-            return redirect('email_list')  # Use the named URL pattern
+            return redirect('accounts_list')  # Use the named URL pattern
     else:
         form = EmailAccountForm()
     return render(request, 'register_mail_account.html', {'form': form})
 
 
-def email_list(request):
-    return render(request, 'email_list.html')
+def email_list(request, account_id):
+    context = {'account_id': account_id}
+    return render(request, 'email_list.html', context)
+
+
+def main(request):
+    return render(request, 'main_page.html')
+
+
+def accounts_list(request):
+    accounts = EmailAccount.objects.all()
+    context = {'accounts': accounts}
+    return render(request, 'accounts_list.html', context)
 
 
 

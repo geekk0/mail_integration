@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Список сообщений</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
         #progress-bar {
@@ -24,18 +25,19 @@
 </head>
 <body>
     <div id="progress-bar">
-        <div id="progress-status">Чтение сообщений</div>
+        <div id="progress-status" style="width: 30%; margin: auto; text-align: center; font-size: 14pt; 
+        font-weight: bold">Поиск сообщений...</div>
         <div id="progress"></div>
     </div>
-    <table id="messages-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Тема</th>
-                <th>Дата отправки</th>
-                <th>Дата получения</th>
-                <th>Описание</th>
-                <th>Прикреплённые файлы</th>
+    <table id="messages-table" style="width: 70%; margin: auto">
+        <thead class="">
+            <tr class="">
+                <th style="width: 10%">ID</th>
+                <th style="width: 30%">Тема</th>
+                <th style="width: 20%">Дата отправки</th>
+                <th style="width: 20%">Дата получения</th>
+                <th style="width: 30%">Описание</th>
+                <th style="width: 10%">Прикреплённые файлы</th>
             </tr>
         </thead>
         <tbody>
@@ -44,7 +46,10 @@
     </table>
 <script>
     $(document).ready(function() {
-        let socket = new WebSocket('ws://localhost:8000/ws/email/');
+        //let socket = new WebSocket('ws://localhost:8000/ws/email/');
+        
+        const js_account_id = {{ account_id }};
+        const socket = new WebSocket(`ws://localhost:8000/ws/email/${js_account_id}/`);
 
         socket.onmessage = function(event) {
             let data = JSON.parse(event.data);
@@ -65,16 +70,7 @@
             
             // Update email list
             if (data.email) {
-                let email = data.email;
-                let row = `<tr>
-                    <td>${email.id}</td>
-                    <td>${email.subject}</td>
-                    <td>${email.sent_date}</td>
-                    <td>${email.received_date}</td>
-                    <td>${email.description.length > 30 ? email.description.slice(0, 30) + '...' : email.description}</td>
-                    <td>${email.attachments}</td>
-                </tr>`;
-                $('#messages-table tbody').append(row);
+                append(data.email);
             }
         };
 
@@ -90,6 +86,19 @@
             console.log("WebSocket error: " + error);  // Debugging line
         };
     });
+    
+    function append(email) {
+        let row = `<tr>
+            <td style="width: 10%">${email.id}</td>
+            <td style="width: 30%">${email.subject.length > 30 ? email.subject.slice(0, 50) + '...' : email.subject}</td>
+            <td style="width: 20%">${email.sent_date}</td>
+            <td style="width: 20%">${email.received_date}</td>
+            <td style="width: 30%">${email.description.length > 30 ? email.description.slice(0, 50) + '...' : email.description}</td>
+            <td style="width: 10%">${email.attachments}</td>
+        </tr>`;
+        $('#messages-table tbody').prepend(row);
+    }
+    
 </script>
 
 </body>
