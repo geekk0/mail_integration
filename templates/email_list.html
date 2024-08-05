@@ -49,12 +49,20 @@
         socket.onmessage = function(event) {
             let data = JSON.parse(event.data);
             console.log("Message received: ", data);  // Debugging line
-            $('#progress-status').text(data.status);
-            // Update progress bar
+            
+            // Update progress message
             if (data.status.startsWith('Progress:')) {
-                let progress = parseInt(data.status.split(': ')[1]);
-                $('#progress').css('width', progress + '%').text(progress + '%');
+                  let unprocessed_emails = parseInt(data.status.split(': ')[1]);
+                  let progress_message = `Обработка сообщений, осталось: ${unprocessed_emails}`;
+                  $('#progress-status').text(progress_message);
+                }
+            
+            //Update progress bar
+            if (data.progress_percentage) {
+              let progress_percentage = data.progress_percentage;
+              $('#progress').css('width', progress_percentage + '%').text(progress_percentage + '%');
             }
+            
             // Update email list
             if (data.email) {
                 let email = data.email;

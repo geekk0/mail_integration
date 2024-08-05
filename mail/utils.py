@@ -2,13 +2,8 @@
 import time
 
 import imapclient
-import email
-from email.utils import parsedate_to_datetime
 from email.header import decode_header
 from bs4 import BeautifulSoup
-from django.utils import timezone
-
-from .models import EmailMessage
 
 
 def decode_mime_words(s):
@@ -71,45 +66,6 @@ def get_attachments_from_email(msg):
     return attachments
 
 
-def fetch_emails(email_account):
-    start_time = time.time()
-    server = imapclient.IMAPClient(email_account.imap_server, ssl=True)
-    server.login(email_account.email, email_account.password)
-    server.select_folder('INBOX', readonly=True)
-
-    messages = server.search(['NOT', 'DELETED'])
-    for msgid, data in server.fetch(messages, 'RFC822').items():
-        msg = email.message_from_bytes(data[b'RFC822'])
-        subject = decode_mime_words(msg['subject'])
-
-        # Parse the date strings into datetime objects
-        sent_date = parsedate_to_datetime(msg['date'])
-        received_date = parsedate_to_datetime(msg['date'])
-
-        # Make the datetime objects timezone-aware if they are naive
-        if timezone.is_naive(sent_date):
-            sent_date = timezone.make_aware(sent_date)
-        if timezone.is_naive(received_date):
-            received_date = timezone.make_aware(received_date)
-
-        # Extract text content from the email
-        description = get_text_from_email(msg)
-
-        # Extract attachments from the email
-        attachments = get_attachments_from_email(msg)
-
-        EmailMessage.objects.create(
-            subject=subject,
-            sent_date=sent_date,
-            received_date=received_date,
-            description=description,
-            attachments=attachments,  # Save attachments
-            email_account=email_account
-        )
-    server.logout()
-    end_time = time.time()
-    elapsed_time = end_time - start_time  # Calculate the elapsed time
-    print(f"Time taken to process emails: {elapsed_time:.2f} seconds")  # Print the elapsed time
 
 
 def get_emails_qty(email_account):
